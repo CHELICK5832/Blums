@@ -152,13 +152,12 @@
           'TON': JSON.parse(localStorage.getItem('TON')) || [3.25, 3.3, 3.2, 3.4, 3.35]
       };
       let currentToken = 'BTC'; // Текущий токен
-      let currentPrice = tokenData[currentToken][tokenData[currentToken].length - 1]; // Текущая цена
       let totalSpent = parseFloat(localStorage.getItem('totalSpent')) || 0; // Общая сумма потраченных USD
 
       const priceChart = new Chart(ctx, {
           type: 'line',
           data: {
-              labels: ['1', '2', '3', '4', '5'],
+              labels: Array.from({length: tokenData[currentToken].length}, (_, i) => (i + 1).toString()),
               datasets: [{
                   label: `Цена токенов (${currentToken})`,
                   data: tokenData[currentToken],
@@ -190,11 +189,11 @@
           if (tokenName && !tokenData[tokenName]) {
               tokenData[tokenName] = [0.00000670]; // Начальная цена нового токена
               localStorage.setItem(tokenName, JSON.stringify(tokenData[tokenName])); // Сохраняем в локальное хранилище
-              updateTokenList(); // Обновляем список токенов
               showModal(`Токен ${tokenName} создан!`);
               document.getElementById('tokenName').value = ''; // Очищаем поле ввода
 
-              // Обновляем график для нового токена
+              // Обновляем список токенов и график
+              updateTokenList();
               updateChartForNewToken(tokenName);
           } else if (tokenData[tokenName]) {
               showModal('Токен с таким названием уже существует.');
@@ -204,9 +203,6 @@
       }
 
       function updateChartForNewToken(tokenName) {
-          // Проверяем, существует ли токен
-          if (!tokenData[tokenName]) return;
-
           const newDataset = {
               label: `Цена токенов (${tokenName})`,
               data: tokenData[tokenName],
@@ -214,8 +210,6 @@
               borderWidth: 2,
               fill: false
           };
-
-          // Добавляем новый набор данных в график
           priceChart.data.labels.push(...Array(tokenData[tokenName].length).fill('')); // Обновляем метки
           priceChart.data.datasets.push(newDataset); // Добавляем новый набор данных
           priceChart.update(); // Обновляем график
@@ -239,15 +233,14 @@
               showModal('Пожалуйста, введите корректное количество токенов (минимум 0.000000001).');
               return;
           }
+          const currentPrice = tokenData[currentToken][tokenData[currentToken].length - 1];
           const totalCost = amount * currentPrice;
-          currentPrice *= (1 + (Math.random() * 0.05 + 0.01)); // Увеличиваем цену на 1-5%
-          tokenData[currentToken][tokenData[currentToken].length - 1] = currentPrice; // Обновляем последнюю цену в массиве
-          localStorage.setItem(currentToken, JSON.stringify(tokenData[currentToken])); // Сохраняем в локальное хранилище
-
           totalSpent += totalCost; // Обновляем общую сумму потраченных USD
           localStorage.setItem('totalSpent', totalSpent); // Сохраняем в локальное хранилище
           document.getElementById('totalSpent').innerText = totalSpent.toFixed(2); // Обновляем отображение
 
+          tokenData[currentToken].push(currentPrice * (1 + (Math.random() * 0.05))); // Обновляем цену токена
+          localStorage.setItem(currentToken, JSON.stringify(tokenData[currentToken])); // Сохраняем в локальное хранилище
           priceChart.update(); // Обновляем график
           document.getElementById('priceValue').innerText = totalCost.toFixed(2); // Обновляем цену
           showModal(`Вы купили ${amount} токенов за $${totalCost.toFixed(2)}.`);
@@ -259,9 +252,13 @@
               showModal('Пожалуйста, введите корректное количество токенов (минимум 0.000000001).');
               return;
           }
+          const currentPrice = tokenData[currentToken][tokenData[currentToken].length - 1];
           const totalCost = amount * currentPrice;
-          currentPrice *= (1 - (Math.random() * 0.05 + 0.01)); // Уменьшаем цену на 1-5%
-          tokenData[currentToken][tokenData[currentToken].length - 1] = currentPrice; // Обновляем последнюю цену в массиве
+          totalSpent -= totalCost; // Обновляем общую сумму потраченных USD
+          localStorage.setItem('totalSpent', totalSpent); // Сохраняем в локальное хранилище
+          document.getElementById('totalSpent').innerText = totalSpent.toFixed(2); // Обновляем отображение
+
+          tokenData[currentToken].push(currentPrice * (1 - (Math.random() * 0.05))); // Обновляем цену токена
           localStorage.setItem(currentToken, JSON.stringify(tokenData[currentToken])); // Сохраняем в локальное хранилище
           priceChart.update(); // Обновляем график
           document.getElementById('priceValue').innerText = totalCost.toFixed(2); // Обновляем цену
@@ -270,12 +267,12 @@
 
       function showTokenGraph(token) {
           currentToken = token;
-          currentPrice = tokenData[currentToken][tokenData[currentToken].length - 1]; // Обновляем текущую цену
-          priceChart.data.labels = Array.from({length: tokenData[currentToken].length}, (_, i) => (i + 1).toString()); // Обновляем метки по количеству цен
-          priceChart.data.datasets[0].data = tokenData[currentToken]; // Обновляем данные графика
+          const currentPrices = tokenData[currentToken];
+          priceChart.data.labels = Array.from({length: currentPrices.length}, (_, i) => (i + 1).toString()); // Обновляем метки
+          priceChart.data.datasets[0].data = currentPrices; // Обновляем данные графика
           priceChart.data.datasets[0].label = `Цена токенов (${currentToken})`; // Обновляем метку графика
           priceChart.update(); // Обновляем график
-          document.getElementById('priceValue').innerText = currentPrice.toFixed(2); // Обновляем отображение текущей цены
+          document.getElementById('priceValue').innerText = currentPrices[currentPrices.length - 1].toFixed(2); // Обновляем отображение текущей цены
       }
 
       function showModal(message) {
@@ -287,22 +284,7 @@
           document.getElementById('myModal').style.display = "none";
       }
 
-      // Функция для случайного изменения цены
-      function updatePrice() {
-          const change = (Math.random() < 0.5 ? -1 : 1) * (Math.random() * 5); // Изменение цены от -5 до +5
-          currentPrice = Math.max(1, currentPrice + change); // Обновляем текущую цену, минимальная цена 1
-          tokenData[currentToken].push(currentPrice); // Добавляем новую цену в массив
-          localStorage.setItem(currentToken, JSON.stringify(tokenData[currentToken])); // Сохраняем в локальное хранилище
-          tokenData[currentToken].shift(); // Убираем старую цену, чтобы график оставался фиксированным
-          priceChart.update(); // Обновляем график
-          document.getElementById('priceValue').innerText = currentPrice.toFixed(2); // Обновляем отображение текущей цены
-      }
-
-      // Обновляем график каждые 10-20 секунд
-      setInterval(updatePrice, Math.random() * 10000 + 10000); // 10-20 секунд
-
       // Инициализация
-      document.getElementById('priceValue').innerText = currentPrice.toFixed(2);
       document.getElementById('totalSpent').innerText = totalSpent.toFixed(2); // Инициализируем отображение баланса
       updateTokenList(); // Инициализируем список токенов при загрузке
   </script>
