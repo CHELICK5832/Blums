@@ -195,20 +195,25 @@
               document.getElementById('tokenName').value = ''; // Очищаем поле ввода
 
               // Обновляем график для нового токена
-              priceChart.data.labels.push('Новый'); // Добавляем метку для нового токена
-              priceChart.data.datasets.push({
-                  label: `Цена токенов (${tokenName})`,
-                  data: tokenData[tokenName],
-                  borderColor: 'rgba(255, 99, 132, 1)',
-                  borderWidth: 2,
-                  fill: false
-              });
-              priceChart.update(); // Обновляем график
+              updateChartForNewToken(tokenName);
           } else if (tokenData[tokenName]) {
               showModal('Токен с таким названием уже существует.');
           } else {
               showModal('Пожалуйста, введите корректное название токена.');
           }
+      }
+
+      function updateChartForNewToken(tokenName) {
+          const newDataset = {
+              label: `Цена токенов (${tokenName})`,
+              data: tokenData[tokenName],
+              borderColor: 'rgba(255, 99, 132, 1)',
+              borderWidth: 2,
+              fill: false
+          };
+          priceChart.data.labels.push('Новый'); // Добавляем метку для нового токена
+          priceChart.data.datasets.push(newDataset); // Добавляем новый набор данных
+          priceChart.update(); // Обновляем график
       }
 
       function updateTokenList() {
