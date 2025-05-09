@@ -166,9 +166,19 @@
 
       // Инициализация токенов
       function initializeTokens() {
-          for (const [token, price] of Object.entries(initialTokens)) {
-              tokenData[token] = [price]; // Установить начальную цену
+          const storedData = localStorage.getItem('tokenData');
+          if (storedData) {
+              tokenData = JSON.parse(storedData);
+          } else {
+              for (const [token, price] of Object.entries(initialTokens)) {
+                  tokenData[token] = [price]; // Установить начальную цену
+              }
           }
+      }
+
+      // Сохранение данных в localStorage
+      function saveTokenData() {
+          localStorage.setItem('tokenData', JSON.stringify(tokenData));
       }
 
       // Обновление графика
@@ -177,6 +187,7 @@
           priceChart.data.labels = Array.from({length: currentPrices.length}, (_, i) => (i + 1).toString());
           priceChart.data.datasets[0].data = currentPrices;
           priceChart.update();
+          saveTokenData(); // Сохраняем данные после обновления графика
       }
 
       let currentToken = 'BTC'; // Установите начальный токен
