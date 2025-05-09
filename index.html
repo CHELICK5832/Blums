@@ -194,7 +194,9 @@
 
       function createToken() {
           const tokenName = document.getElementById('tokenName').value.trim();
-          if (tokenName && !tokenData[tokenName]) {
+          const restrictedTokens = ['BTC', 'ETH', 'SOL', 'FPIBANK', 'TON'];
+
+          if (tokenName && !tokenData[tokenName] && !restrictedTokens.includes(tokenName)) {
               tokenData[tokenName] = [0.00000670]; // Начальная цена нового токена
               localStorage.setItem(tokenName, JSON.stringify(tokenData[tokenName])); // Сохраняем в локальное хранилище
               showModal(`Токен ${tokenName} создан!`);
@@ -203,6 +205,8 @@
               // Обновляем список токенов и график
               updateTokenList();
               updateChartForNewToken(tokenName);
+          } else if (restrictedTokens.includes(tokenName)) {
+              showModal(`Невозможно создать токен с названием ${tokenName}. Это зарезервированное имя.`);
           } else if (tokenData[tokenName]) {
               showModal('Токен с таким названием уже существует.');
           } else {
@@ -235,7 +239,14 @@
               const deleteButton = document.createElement('button');
               deleteButton.textContent = 'Удалить';
               deleteButton.className = 'button';
-              deleteButton.onclick = () => deleteToken(token); // Удаляем токен при нажатии
+              
+              // Проверка на защищенные токены
+              if (['BTC', 'ETH', 'SOL', 'FPIBANK', 'TON'].includes(token)) {
+                  deleteButton.disabled = true; // Отключаем кнопку удаления для защищенных токенов
+                  deleteButton.title = "Удаление этого токена запрещено"; // Подсказка
+              } else {
+                  deleteButton.onclick = () => deleteToken(token); // Удаляем токен при нажатии
+              }
               
               tokenDiv.appendChild(deleteButton); // Добавляем кнопку удаления к токену
               tokenList.appendChild(tokenDiv);
