@@ -224,9 +224,9 @@
       }
 
       function buyToken() {
-          const amount = parseInt(document.getElementById('tokenAmount').value);
-          if (isNaN(amount) || amount <= 0) {
-              showModal('Пожалуйста, введите корректное количество токенов.');
+          const amount = parseFloat(document.getElementById('tokenAmount').value);
+          if (isNaN(amount) || amount < 0.000000001) {
+              showModal('Пожалуйста, введите корректное количество токенов (минимум 0.000000001).');
               return;
           }
           const totalCost = amount * currentPrice;
@@ -244,9 +244,9 @@
       }
 
       function sellToken() {
-          const amount = parseInt(document.getElementById('tokenAmount').value);
-          if (isNaN(amount) || amount <= 0) {
-              showModal('Пожалуйста, введите корректное количество токенов.');
+          const amount = parseFloat(document.getElementById('tokenAmount').value);
+          if (isNaN(amount) || amount < 0.000000001) {
+              showModal('Пожалуйста, введите корректное количество токенов (минимум 0.000000001).');
               return;
           }
           const totalCost = amount * currentPrice;
