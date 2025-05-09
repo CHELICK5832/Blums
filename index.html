@@ -219,7 +219,7 @@
               return;
           }
           const totalCost = amount * currentPrice;
-          currentPrice += amount; // Увеличиваем цену на количество купленных токенов
+          currentPrice *= (1 + (Math.random() * 0.05 + 0.01)); // Увеличиваем цену на 1-5%
           tokenData[currentToken][tokenData[currentToken].length - 1] = currentPrice; // Обновляем последнюю цену в массиве
           localStorage.setItem(currentToken, JSON.stringify(tokenData[currentToken])); // Сохраняем в локальное хранилище
 
@@ -239,7 +239,7 @@
               return;
           }
           const totalCost = amount * currentPrice;
-          currentPrice = Math.max(1, currentPrice - amount); // Уменьшаем цену на количество проданных токенов, минимальная цена 1
+          currentPrice *= (1 - (Math.random() * 0.05 + 0.01)); // Уменьшаем цену на 1-5%
           tokenData[currentToken][tokenData[currentToken].length - 1] = currentPrice; // Обновляем последнюю цену в массиве
           localStorage.setItem(currentToken, JSON.stringify(tokenData[currentToken])); // Сохраняем в локальное хранилище
           priceChart.update(); // Обновляем график
