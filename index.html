@@ -42,6 +42,7 @@
           justify-content: space-between;
           align-items: center;
           flex-wrap: wrap;
+          cursor: pointer; /* Указатель для интерактивных элементов */
       }
       .token:hover {
           background: #333;
@@ -254,6 +255,11 @@
               tokenDiv.className = 'token';
               tokenDiv.textContent = `${token} (${tokenData[token][tokenData[token].length - 1]} USD)`;
               
+              // Добавляем обработчик клика для переключения токенов
+              tokenDiv.onclick = () => {
+                  showTokenGraph(token);
+              };
+
               // Кнопка удаления токена
               const deleteButton = document.createElement('button');
               deleteButton.textContent = 'Удалить';
@@ -264,7 +270,10 @@
                   deleteButton.disabled = true; // Отключаем кнопку удаления для защищенных токенов
                   deleteButton.title = "Удаление этого токена запрещено"; // Подсказка
               } else {
-                  deleteButton.onclick = () => deleteToken(token); // Удаляем токен при нажатии
+                  deleteButton.onclick = (e) => {
+                      e.stopPropagation(); // Останавливаем всплытие события, чтобы не переключать токен
+                      deleteToken(token); // Удаляем токен при нажатии
+                  }; 
               }
               
               tokenDiv.appendChild(deleteButton); // Добавляем кнопку удаления к токену
@@ -344,6 +353,7 @@
       // Инициализация
       document.getElementById('totalSpent').innerText = totalSpent.toFixed(2); // Инициализируем отображение баланса
       updateTokenList(); // Инициализируем список токенов при загрузке
+      showTokenGraph(currentToken); // Показываем график для текущего токена
   </script>
 </body>
 </html>
