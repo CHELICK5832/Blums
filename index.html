@@ -193,6 +193,17 @@
               updateTokenList(); // Обновляем список токенов
               showModal(`Токен ${tokenName} создан!`);
               document.getElementById('tokenName').value = ''; // Очищаем поле ввода
+
+              // Обновляем график для нового токена
+              priceChart.data.labels.push('Новый'); // Добавляем метку для нового токена
+              priceChart.data.datasets.push({
+                  label: `Цена токенов (${tokenName})`,
+                  data: tokenData[tokenName],
+                  borderColor: 'rgba(255, 99, 132, 1)',
+                  borderWidth: 2,
+                  fill: false
+              });
+              priceChart.update(); // Обновляем график
           } else if (tokenData[tokenName]) {
               showModal('Токен с таким названием уже существует.');
           } else {
@@ -250,8 +261,9 @@
       function showTokenGraph(token) {
           currentToken = token;
           currentPrice = tokenData[currentToken][tokenData[currentToken].length - 1]; // Обновляем текущую цену
-          priceChart.data.datasets[0].label = `Цена токенов (${currentToken})`; // Обновляем метку графика
-          priceChart.data.datasets[0].data = tokenData[currentToken]; // Обновляем данные графика
+          priceChart.data.datasets.forEach((dataset) => {
+              dataset.hidden = dataset.label !== `Цена токенов (${currentToken})`; // Скрываем другие графики
+          });
           priceChart.update(); // Обновляем график
           document.getElementById('priceValue').innerText = currentPrice.toFixed(2); // Обновляем отображение текущей цены
       }
