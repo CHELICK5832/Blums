@@ -144,23 +144,28 @@
 
   <script>
       const ctx = document.getElementById('priceChart').getContext('2d');
-      let tokenData = {
-          'BTC': JSON.parse(localStorage.getItem('BTC')) || [102925.40, 103000, 102500, 103200, 102800],
-          'ETH': JSON.parse(localStorage.getItem('ETH')) || [1792.97, 1800, 1780, 1820, 1810],
-          'SOL': JSON.parse(localStorage.getItem('SOL')) || [161.47, 162, 160, 163, 164],
-          'FPIBANK': JSON.parse(localStorage.getItem('FPIBANK')) || [0.005872, 0.0059, 0.0058, 0.006, 0.0059],
-          'TON': JSON.parse(localStorage.getItem('TON')) || [3.25, 3.3, 3.2, 3.4, 3.35]
-      };
+
+      // Функция для загрузки токенов из localStorage
+      function loadTokens() {
+          const storedTokens = Object.keys(localStorage).filter(key => key !== 'totalSpent');
+          const tokenData = {};
+          storedTokens.forEach(token => {
+              tokenData[token] = JSON.parse(localStorage.getItem(token));
+          });
+          return tokenData;
+      }
+
+      let tokenData = loadTokens(); // Загружаем токены из localStorage
       let currentToken = 'BTC'; // Текущий токен
       let totalSpent = parseFloat(localStorage.getItem('totalSpent')) || 0; // Общая сумма потраченных USD
 
       const priceChart = new Chart(ctx, {
           type: 'line',
           data: {
-              labels: Array.from({length: tokenData[currentToken].length}, (_, i) => (i + 1).toString()),
+              labels: Array.from({length: tokenData[currentToken]?.length || 0}, (_, i) => (i + 1).toString()),
               datasets: [{
                   label: `Цена токенов (${currentToken})`,
-                  data: tokenData[currentToken],
+                  data: tokenData[currentToken] || [],
                   borderColor: 'rgba(75, 192, 192, 1)',
                   borderWidth: 2,
                   fill: false
@@ -189,7 +194,6 @@
           if (tokenName && !tokenData[tokenName]) {
               tokenData[tokenName] = [0.00000670]; // Начальная цена нового токена
               localStorage.setItem(tokenName, JSON.stringify(tokenData[tokenName])); // Сохраняем в локальное хранилище
-              console.log(`Токен ${tokenName} сохранен в localStorage:`, tokenData[tokenName]);
               showModal(`Токен ${tokenName} создан!`);
               document.getElementById('tokenName').value = ''; // Очищаем поле ввода
 
@@ -214,7 +218,6 @@
           priceChart.data.labels.push(...Array(tokenData[tokenName].length).fill('')); // Обновляем метки
           priceChart.data.datasets.push(newDataset); // Добавляем новый набор данных
           priceChart.update(); // Обновляем график
-          console.log(`Обновлен график для токена ${tokenName}:`, priceChart.data);
       }
 
       function updateTokenList() {
@@ -243,7 +246,6 @@
 
           tokenData[currentToken].push(currentPrice * (1 + (Math.random() * 0.05))); // Обновляем цену токена
           localStorage.setItem(currentToken, JSON.stringify(tokenData[currentToken])); // Сохраняем в локальное хранилище
-          console.log(`Куплено ${amount} токенов ${currentToken} за $${totalCost.toFixed(2)}. Новая цена:`, tokenData[currentToken]);
           priceChart.update(); // Обновляем график
           document.getElementById('priceValue').innerText = totalCost.toFixed(2); // Обновляем цену
           showModal(`Вы купили ${amount} токенов за $${totalCost.toFixed(2)}.`);
@@ -263,7 +265,6 @@
 
           tokenData[currentToken].push(currentPrice * (1 - (Math.random() * 0.05))); // Обновляем цену токена
           localStorage.setItem(currentToken, JSON.stringify(tokenData[currentToken])); // Сохраняем в локальное хранилище
-          console.log(`Продано ${amount} токенов ${currentToken} за $${totalCost.toFixed(2)}. Новая цена:`, tokenData[currentToken]);
           priceChart.update(); // Обновляем график
           document.getElementById('priceValue').innerText = totalCost.toFixed(2); // Обновляем цену
           showModal(`Вы продали ${amount} токенов за $${totalCost.toFixed(2)}.`);
