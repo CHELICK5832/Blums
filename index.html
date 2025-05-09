@@ -182,6 +182,10 @@
       let currentToken = 'BTC'; // Текущий токен
       let totalSpent = parseFloat(localStorage.getItem('totalSpent')) || 0; // Общая сумма потраченных USD
 
+      // Зарезервированные токены
+      const reservedTokens = ['BTC', 'ETH', 'SOL', 'FPIBANK', 'TON'];
+
+      // Инициализируем график
       const priceChart = new Chart(ctx, {
           type: 'line',
           data: {
@@ -214,9 +218,8 @@
 
       function createToken() {
           const tokenName = document.getElementById('tokenName').value.trim();
-          const restrictedTokens = ['BTC', 'ETH', 'SOL', 'FPIBANK', 'TON'];
 
-          if (tokenName && !tokenData[tokenName] && !restrictedTokens.includes(tokenName)) {
+          if (tokenName && !tokenData[tokenName] && !reservedTokens.includes(tokenName)) {
               tokenData[tokenName] = [0.00000670]; // Начальная цена нового токена
               localStorage.setItem(tokenName, JSON.stringify(tokenData[tokenName])); // Сохраняем в локальное хранилище
               showModal(`Токен ${tokenName} создан!`);
@@ -225,7 +228,7 @@
               // Обновляем список токенов и график
               updateTokenList();
               updateChartForNewToken(tokenName);
-          } else if (restrictedTokens.includes(tokenName)) {
+          } else if (reservedTokens.includes(tokenName)) {
               showModal(`Невозможно создать токен с названием ${tokenName}. Это зарезервированное имя.`);
           } else if (tokenData[tokenName]) {
               showModal('Токен с таким названием уже существует.');
@@ -250,6 +253,24 @@
       function updateTokenList() {
           const tokenList = document.getElementById('tokenList');
           tokenList.innerHTML = ''; // Очищаем текущий список
+
+          // Добавляем зарезервированные токены
+          reservedTokens.forEach(token => {
+              const tokenDiv = document.createElement('div');
+              tokenDiv.className = 'token';
+              tokenDiv.textContent = `${token} (зарезервировано)`;
+              
+              // Кнопка удаления токена
+              const deleteButton = document.createElement('button');
+              deleteButton.textContent = 'Удалить';
+              deleteButton.className = 'button';
+              deleteButton.disabled = true; // Отключаем кнопку удаления для защищенных токенов
+              
+              tokenDiv.appendChild(deleteButton); // Добавляем кнопку удаления к токену
+              tokenList.appendChild(tokenDiv);
+          });
+
+          // Добавляем пользовательские токены
           for (const token in tokenData) {
               const tokenDiv = document.createElement('div');
               tokenDiv.className = 'token';
@@ -266,7 +287,7 @@
               deleteButton.className = 'button';
               
               // Проверка на защищенные токены
-              if (['BTC', 'ETH', 'SOL', 'FPIBANK', 'TON'].includes(token)) {
+              if (reservedTokens.includes(token)) {
                   deleteButton.disabled = true; // Отключаем кнопку удаления для защищенных токенов
                   deleteButton.title = "Удаление этого токена запрещено"; // Подсказка
               } else {
