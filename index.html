@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Крипто Биржа Blums</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+      body {
+          font-family: Arial, sans-serif;
+          background-color: #121212;
+          color: #ffffff;
+          margin: 0;
+          padding: 20px;
+      }
+      header {
+          background: #1e1e1e;
+          color: #ffffff;
+          padding: 10px 0;
+          text-align: center;
+      }
+      .container {
+          display: flex;
+          max-width: 1200px;
+          margin: auto;
+          background: #1e1e1e;
+          border-radius: 5px;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      }
+      .sidebar {
+          width: 30%;
+          padding: 20px;
+          border-right: 1px solid #333;
+      }
+      .token {
+          margin: 10px 0;
+          padding: 10px;
+          border: 1px solid #444;
+          border-radius: 5px;
+          cursor: pointer;
+          background: #2a2a2a;
+      }
+      .token:hover {
+          background: #333;
+      }
+      .content {
+          width: 70%;
+          padding: 20px;
+      }
+      .button {
+          background: #007bff;
+          color: white;
+          padding: 10px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+      }
+      canvas {
+          max-width: 100%;
+          margin: 20px 0;
+      }
+      .input-group {
+          margin: 10px 0;
+      }
+      .balance {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background: rgba(0, 0, 0, 0.7);
+          padding: 10px;
+          border-radius: 5px;
+      }
+      /* Стиль для модального окна */
+      .modal {
+          display: none; 
+          position: fixed; 
+          z-index: 1; 
+          left: 0;
+          top: 0;
+          width: 100%; 
+          height: 100%; 
+          overflow: auto; 
+          background-color: rgba(0, 0, 0, 0.8); 
+          padding-top: 60px;
+      }
+      .modal-content {
+          background-color: #2a2a2a;
+          margin: 5% auto; 
+          padding: 20px;
+          border: 1px solid #888;
+          width: 80%; 
+          text-align: center;
+      }
+      .close {
+          color: #aaa;
+          float: right;
+          font-size: 28px;
+          font-weight: bold;
+      }
+      .close:hover,
+      .close:focus {
+          color: white;
+          text-decoration: none;
+          cursor: pointer;
+      }
+  </style>
+</head>
+<body>
+  <header>
+      <h1>Крипто Биржа Blums</h1>
+      <div class="balance">Баланс: $<span id="totalSpent">0.00</span></div>
+  </header>
+  <div class="container">
+      <div class="sidebar">
+          <h2>Доступные Токены</h2>
+          <div id="tokenList"></div>
+          
+          <h2>Создать свой токен</h2>
+          <input type="text" id="tokenName" placeholder="Название токена" />
+          <button class="button" onclick="createToken()">Создать токен</button>
+      </div>
+      <div class="content">
+          <h2>График цен токенов</h2>
+          <canvas id="priceChart"></canvas>
+
+          <h2>Регулирование графика</h2>
+          <div class="input-group">
+              <input type="number" id="tokenAmount" placeholder="Количество токенов" />
+              <span id="tokenPrice" style="margin-left: 10px;">Цена: $<span id="priceValue">0</span></span>
+          </div>
+          <button class="button" onclick="buyToken()">Купить токен</button>
+          <button class="button" onclick="sellToken()">Продать токен</button>
+      </div>
+  </div>
+
+  <!-- Модальное окно -->
+  <div id="myModal" class="modal">
+      <div class="modal-content">
+          <span class="close" onclick="closeModal()">&times;</span>
+          <p id="modalMessage"></p>
+          <button class="button" onclick="closeModal()">Закрыть</button>
+      </div>
+  </div>
+
+  <script>
+      const ctx = document.getElementById('priceChart').getContext('2d');
+      let tokenData = {
+          'BTC': JSON.parse(localStorage.getItem('BTC')) || [102925.40, 103000, 102500, 103200, 102800],
+          'ETH': JSON.parse(localStorage.getItem('ETH')) || [1792.97, 1800, 1780, 1820, 1810],
+          'SOL': JSON.parse(localStorage.getItem('SOL')) || [161.47, 162, 160, 163, 164],
+          'FPIBANK': JSON.parse(localStorage.getItem('FPIBANK')) || [0.005872, 0.0059, 0.0058, 0.006, 0.0059],
+          'TON': JSON.parse(localStorage.getItem('TON')) || [3.25, 3.3, 3.2, 3.4, 3.35]
+      };
+      let currentToken = 'BTC'; // Текущий токен
+      let currentPrice = tokenData[currentToken][tokenData[currentToken].length - 1]; // Текущая цена
+      let totalSpent = parseFloat(localStorage.getItem('totalSpent')) || 0; // Общая сумма потраченных USD
+
+      const priceChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+              labels: ['1', '2', '3', '4', '5'],
+              datasets: [{
+                  label: `Цена токенов (${currentToken})`,
+                  data: tokenData[currentToken],
+                  borderColor: 'rgba(75, 192, 192, 1)',
+                  borderWidth: 2,
+                  fill: false
+              }]
+          },
+          options: {
+              responsive: true,
+              scales: {
+                  y: {
+                      beginAtZero: true,
+                      grid: {
+                          color: '#444'
+                      }
+                  },
+                  x: {
+                      grid: {
+                          color: '#444'
+                      }
+                  }
+              }
+          }
+      });
+
+      function createToken() {
+          const tokenName = document.getElementById('tokenName').value.trim();
+          if (tokenName && !tokenData[tokenName]) {
+              tokenData[tokenName] = [0.00000670]; // Начальная цена нового токена
+              localStorage.setItem(tokenName, JSON.stringify(tokenData[tokenName])); // Сохраняем в локальное хранилище
+              updateTokenList(); // Обновляем список токенов
+              showModal(`Токен ${tokenName} создан!`);
+              document.getElementById('tokenName').value = ''; // Очищаем поле ввода
+          } else if (tokenData[tokenName]) {
+              showModal('Токен с таким названием уже существует.');
+          } else {
+              showModal('Пожалуйста, введите корректное название токена.');
+          }
+      }
+
+      function updateTokenList() {
+          const tokenList = document.getElementById('tokenList');
+          tokenList.innerHTML = ''; // Очищаем текущий список
+          for (const token in tokenData) {
+              const tokenDiv = document.createElement('div');
+              tokenDiv.className = 'token';
+              tokenDiv.textContent = `${token} (${tokenData[token][tokenData[token].length - 1]} USD)`;
+              tokenDiv.onclick = () => showTokenGraph(token); // Добавляем обработчик клика
+              tokenList.appendChild(tokenDiv);
+          }
+      }
+
+      function buyToken() {
+          const amount = parseInt(document.getElementById('tokenAmount').value);
+          if (isNaN(amount) || amount <= 0) {
+              showModal('Пожалуйста, введите корректное количество токенов.');
+              return;
+          }
+          const totalCost = amount * currentPrice;
+          currentPrice += amount; // Увеличиваем цену на количество купленных токенов
+          tokenData[currentToken][tokenData[currentToken].length - 1] = currentPrice; // Обновляем последнюю цену в массиве
+          localStorage.setItem(currentToken, JSON.stringify(tokenData[currentToken])); // Сохраняем в локальное хранилище
+
+          totalSpent += totalCost; // Обновляем общую сумму потраченных USD
+          localStorage.setItem('totalSpent', totalSpent); // Сохраняем в локальное хранилище
+          document.getElementById('totalSpent').innerText = totalSpent.toFixed(2); // Обновляем отображение
+
+          priceChart.update(); // Обновляем график
+          document.getElementById('priceValue').innerText = totalCost.toFixed(2); // Обновляем цену
+          showModal(`Вы купили ${amount} токенов за $${totalCost.toFixed(2)}.`);
+      }
+
+      function sellToken() {
+          const amount = parseInt(document.getElementById('tokenAmount').value);
+          if (isNaN(amount) || amount <= 0) {
+              showModal('Пожалуйста, введите корректное количество токенов.');
+              return;
+          }
+          const totalCost = amount * currentPrice;
+          currentPrice = Math.max(1, currentPrice - amount); // Уменьшаем цену на количество проданных токенов, минимальная цена 1
+          tokenData[currentToken][tokenData[currentToken].length - 1] = currentPrice; // Обновляем последнюю цену в массиве
+          localStorage.setItem(currentToken, JSON.stringify(tokenData[currentToken])); // Сохраняем в локальное хранилище
+          priceChart.update(); // Обновляем график
+          document.getElementById('priceValue').innerText = totalCost.toFixed(2); // Обновляем цену
+          showModal(`Вы продали ${amount} токенов за $${totalCost.toFixed(2)}.`);
+      }
+
+      function showTokenGraph(token) {
+          currentToken = token;
+          currentPrice = tokenData[currentToken][tokenData[currentToken].length - 1]; // Обновляем текущую цену
+          priceChart.data.datasets[0].label = `Цена токенов (${currentToken})`; // Обновляем метку графика
+          priceChart.data.datasets[0].data = tokenData[currentToken]; // Обновляем данные графика
+          priceChart.update(); // Обновляем график
+          document.getElementById('priceValue').innerText = currentPrice.toFixed(2); // Обновляем отображение текущей цены
+      }
+
+      function showModal(message) {
+          document.getElementById('modalMessage').innerText = message;
+          document.getElementById('myModal').style.display = "block";
+      }
+
+      function closeModal() {
+          document.getElementById('myModal').style.display = "none";
+      }
+
+      // Функция для случайного изменения цены
+      function updatePrice() {
+          const change = (Math.random() < 0.5 ? -1 : 1) * (Math.random() * 5); // Изменение цены от -5 до +5
+          currentPrice = Math.max(1, currentPrice + change); // Обновляем текущую цену, минимальная цена 1
+          tokenData[currentToken].push(currentPrice); // Добавляем новую цену в массив
+          localStorage.setItem(currentToken, JSON.stringify(tokenData[currentToken])); // Сохраняем в локальное хранилище
+          tokenData[currentToken].shift(); // Убираем старую цену, чтобы график оставался фиксированным
+          priceChart.update(); // Обновляем график
+          document.getElementById('priceValue').innerText = currentPrice.toFixed(2); // Обновляем отображение текущей цены
+      }
+
+      // Обновляем график каждые 10-20 секунд
+      setInterval(updatePrice, Math.random() * 10000 + 10000); // 10-20 секунд
+
+      // Обновляем отображение текущей цены
+      document.getElementById('priceValue').innerText = currentPrice.toFixed(2);
+      document.getElementById('totalSpent').innerText = totalSpent.toFixed(2); // Инициализируем отображение баланса
+      updateTokenList(); // Инициализируем список токенов при загрузке
+  </script>
+</body>
+</html>
