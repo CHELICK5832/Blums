@@ -39,6 +39,9 @@
           border-radius: 5px;
           cursor: pointer;
           background: #2a2a2a;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
       }
       .token:hover {
           background: #333;
@@ -227,8 +230,27 @@
               const tokenDiv = document.createElement('div');
               tokenDiv.className = 'token';
               tokenDiv.textContent = `${token} (${tokenData[token][tokenData[token].length - 1]} USD)`;
-              tokenDiv.onclick = () => showTokenGraph(token); // Добавляем обработчик клика
+              
+              // Кнопка удаления токена
+              const deleteButton = document.createElement('button');
+              deleteButton.textContent = 'Удалить';
+              deleteButton.className = 'button';
+              deleteButton.onclick = () => deleteToken(token); // Удаляем токен при нажатии
+              
+              tokenDiv.appendChild(deleteButton); // Добавляем кнопку удаления к токену
               tokenList.appendChild(tokenDiv);
+          }
+      }
+
+      function deleteToken(tokenName) {
+          delete tokenData[tokenName]; // Удаляем токен из объекта
+          localStorage.removeItem(tokenName); // Удаляем токен из localStorage
+          showModal(`Токен ${tokenName} удален!`); // Показываем сообщение
+          updateTokenList(); // Обновляем список токенов
+          if (currentToken === tokenName) {
+              currentToken = 'BTC'; // Сбрасываем текущий токен, если он был удалён
+              priceChart.data.datasets = []; // Очищаем данные графика
+              priceChart.update(); // Обновляем график
           }
       }
 
