@@ -204,6 +204,9 @@
       }
 
       function updateChartForNewToken(tokenName) {
+          // Проверяем, существует ли токен
+          if (!tokenData[tokenName]) return;
+
           const newDataset = {
               label: `Цена токенов (${tokenName})`,
               data: tokenData[tokenName],
@@ -211,7 +214,9 @@
               borderWidth: 2,
               fill: false
           };
-          priceChart.data.labels.push('Новый'); // Добавляем метку для нового токена
+
+          // Добавляем новый набор данных в график
+          priceChart.data.labels.push(...Array(tokenData[tokenName].length).fill('')); // Обновляем метки
           priceChart.data.datasets.push(newDataset); // Добавляем новый набор данных
           priceChart.update(); // Обновляем график
       }
@@ -296,7 +301,7 @@
       // Обновляем график каждые 10-20 секунд
       setInterval(updatePrice, Math.random() * 10000 + 10000); // 10-20 секунд
 
-      // Обновляем отображение текущей цены
+      // Инициализация
       document.getElementById('priceValue').innerText = currentPrice.toFixed(2);
       document.getElementById('totalSpent').innerText = totalSpent.toFixed(2); // Инициализируем отображение баланса
       updateTokenList(); // Инициализируем список токенов при загрузке
