@@ -189,6 +189,7 @@
           if (tokenName && !tokenData[tokenName]) {
               tokenData[tokenName] = [0.00000670]; // Начальная цена нового токена
               localStorage.setItem(tokenName, JSON.stringify(tokenData[tokenName])); // Сохраняем в локальное хранилище
+              console.log(`Токен ${tokenName} сохранен в localStorage:`, tokenData[tokenName]);
               showModal(`Токен ${tokenName} создан!`);
               document.getElementById('tokenName').value = ''; // Очищаем поле ввода
 
@@ -213,6 +214,7 @@
           priceChart.data.labels.push(...Array(tokenData[tokenName].length).fill('')); // Обновляем метки
           priceChart.data.datasets.push(newDataset); // Добавляем новый набор данных
           priceChart.update(); // Обновляем график
+          console.log(`Обновлен график для токена ${tokenName}:`, priceChart.data);
       }
 
       function updateTokenList() {
@@ -241,6 +243,7 @@
 
           tokenData[currentToken].push(currentPrice * (1 + (Math.random() * 0.05))); // Обновляем цену токена
           localStorage.setItem(currentToken, JSON.stringify(tokenData[currentToken])); // Сохраняем в локальное хранилище
+          console.log(`Куплено ${amount} токенов ${currentToken} за $${totalCost.toFixed(2)}. Новая цена:`, tokenData[currentToken]);
           priceChart.update(); // Обновляем график
           document.getElementById('priceValue').innerText = totalCost.toFixed(2); // Обновляем цену
           showModal(`Вы купили ${amount} токенов за $${totalCost.toFixed(2)}.`);
@@ -260,6 +263,7 @@
 
           tokenData[currentToken].push(currentPrice * (1 - (Math.random() * 0.05))); // Обновляем цену токена
           localStorage.setItem(currentToken, JSON.stringify(tokenData[currentToken])); // Сохраняем в локальное хранилище
+          console.log(`Продано ${amount} токенов ${currentToken} за $${totalCost.toFixed(2)}. Новая цена:`, tokenData[currentToken]);
           priceChart.update(); // Обновляем график
           document.getElementById('priceValue').innerText = totalCost.toFixed(2); // Обновляем цену
           showModal(`Вы продали ${amount} токенов за $${totalCost.toFixed(2)}.`);
