@@ -253,10 +253,19 @@
               const deleteButton = document.createElement('button');
               deleteButton.textContent = 'Удалить';
               deleteButton.className = 'button';
+              deleteButton.onclick = () => deleteToken(token); // Добавляем обработчик события для удаления токена
               
               tokenDiv.appendChild(deleteButton);
               tokenList.appendChild(tokenDiv);
           }
+      }
+
+      function deleteToken(token) {
+          delete tokenData[token]; // Удаляем токен из данных
+          saveTokenData(); // Сохраняем изменения в localStorage
+          updateTokenList(); // Обновляем список токенов
+          updateChart(); // Обновляем график
+          showModal(`Токен ${token} удалён!`);
       }
 
       function buyToken() {
