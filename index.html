@@ -226,7 +226,8 @@
           const tokenName = document.getElementById('tokenName').value.trim();
 
           if (tokenName && !tokenData[tokenName]) {
-              tokenData[tokenName] = [0.00000670]; // Начальная цена для новых токенов
+              const initialPrice = (Math.random() * 0.01 + 0.00001).toFixed(5); // Случайная начальная цена для новых токенов
+              tokenData[tokenName] = [parseFloat(initialPrice)]; // Установить начальную цену
               showModal(`Токен ${tokenName} создан!`);
               document.getElementById('tokenName').value = '';
               updateTokenList();
