@@ -4,25 +4,150 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Crypto Exchange</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCtVA-P70pbJZTVtn3vFHsx1uCggeFf10c",
+      authDomain: "blums-ebb54.firebaseapp.com",
+      projectId: "blums-ebb54",
+      storageBucket: "blums-ebb54.firebasestorage.app",
+      messagingSenderId: "293233079310",
+      appId: "1:293233079310:web:3b4f03d094130cbc92785f",
+      measurementId: "G-ZE1BJKW80F"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const chartRef = doc(db, 'exchange', 'chartData');
+    const priceRef = doc(db, 'exchange', 'prices');
+
+    async function saveChartData(data) {
+      await setDoc(chartRef, data);
+    }
+
+    async function savePrices(prices) {
+      await setDoc(priceRef, prices);
+    }
+
+    async function loadChartData() {
+      const snap = await getDoc(chartRef);
+      return snap.exists() ? snap.data() : {};
+    }
+
+    async function loadPrices() {
+      const snap = await getDoc(priceRef);
+      return snap.exists() ? snap.data() : {};
+    }
+
+    const defaultTokens = ["btc", "eth", "xrp", "sol", "ton", "link"];
+
+    async function initializeDefaultTokens() {
+      let updated = false;
+      defaultTokens.forEach(token => {
+        if (!prices[token]) {
+          prices[token] = token === "btc" ? 100000 :
+                          token === "eth" ? 1400 :
+                          token === "xrp" ? 0.5 :
+                          token === "sol" ? 20 :
+                          token === "ton" ? 2 :
+                          token === "link" ? 7 : 1;
+          updated = true;
+        }
+        if (!chartData[token]) {
+          chartData[token] = [prices[token]];
+          updated = true;
+        }
+      });
+      if (updated) {
+        await savePrices(prices);
+        await saveChartData(chartData);
+      }
+    }
+
+    function initTokenButtons() {
+      const container = document.getElementById("token-buttons");
+      container.innerHTML = "";
+      defaultTokens.forEach(token => {
+        const btn = document.createElement("button");
+        btn.textContent = token.toUpperCase();
+        btn.onclick = () => setCurrentToken(token);
+        container.appendChild(btn);
+      });
+    }
+
+    let prices = {};
+    let chartData = {};
+    let currentToken = "btc";
+
+    onSnapshot(priceRef, (docSnap) => {
+      if (docSnap.exists()) {
+        prices = docSnap.data();
+        updatePriceUI();
+      }
+    });
+
+    onSnapshot(chartRef, (docSnap) => {
+      if (docSnap.exists()) {
+        chartData = docSnap.data();
+        updateChartUI();
+      }
+    });
+
+    function updatePriceUI() {
+      const info = document.getElementById("token-info");
+      if (currentToken && prices[currentToken] != null) {
+        info.innerText = `${currentToken.toUpperCase()}: $${prices[currentToken].toFixed(2)}`;
+      } else {
+        info.innerText = "Нет данных";
+      }
+    }
+
+    function updateChartUI() {
+      const ctx = document.getElementById("chart").getContext("2d");
+      if (window.myChart) window.myChart.destroy();
+      const data = chartData[currentToken] || [prices[currentToken] || 0];
+      window.myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.map((_, i) => i),
+          datasets: [{
+            label: `${currentToken.toUpperCase()} Price`,
+            data: data,
+            borderColor: '#0f0',
+            backgroundColor: 'transparent'
+          }]
+        },
+        options: {
+          scales: {
+            x: { display: false },
+            y: { beginAtZero: false }
+          },
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
+    }
+
+    window.setCurrentToken = function(token) {
+      currentToken = token;
+      updatePriceUI();
+      updateChartUI();
+    };
+
+    loadPrices().then(p => { prices = p; loadChartData().then(d => {
+      chartData = d;
+      initializeDefaultTokens().then(() => {
+        initTokenButtons();
+        updatePriceUI();
+        updateChartUI();
+      });
+    }); });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* Стиль для кнопок */
-    .small-btn {
-      margin-top: 5px;
-      padding: 6px 10px;
-      font-size: 0.9em;
-      background-color: #2a2a2a;
-      color: #fff;
-      border: 1px solid #444;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
-
-    .small-btn:hover {
-      background-color: #444;
-    }
-
-    /* Остальные стили остаются неизменными */
     body {
       font-family: Arial, sans-serif;
       background-color: #111;
@@ -35,26 +160,27 @@
       height: 100vh;
       flex-direction: column;
     }
-
     .container {
       display: flex;
       width: 100%;
       height: 100%;
     }
-
     .sidebar {
       width: 200px;
       background-color: #222;
       padding: 20px;
       color: #fff;
     }
-
     .main {
       flex-grow: 1;
       padding: 20px;
       background-color: #333;
+      position: relative;
     }
-
+    #chart {
+      width: 100%;
+      height: 300px;
+    }
     #token-buttons button {
       width: 100%;
       margin: 5px 0;
@@ -64,17 +190,14 @@
       color: white;
       cursor: pointer;
     }
-
     #token-buttons button:hover {
       background-color: #555;
     }
-
     .token-info {
       margin: 20px 0;
       padding: 10px;
       background-color: #444;
     }
-
     .actions input {
       padding: 10px;
       width: 50px;
@@ -82,7 +205,6 @@
       color: #fff;
       border: none;
     }
-
     .actions button {
       padding: 10px;
       background-color: #444;
@@ -91,11 +213,9 @@
       cursor: pointer;
       margin-left: 5px;
     }
-
     .actions button:hover {
       background-color: #555;
     }
-
     .notifications {
       position: fixed;
       bottom: 10px;
@@ -107,30 +227,6 @@
       border-radius: 5px;
       visibility: hidden;
     }
-
-    /* Светлая тема */
-    .light-theme {
-      background-color: #f4f4f4;
-      color: black;
-    }
-
-    .light-theme .sidebar {
-      background-color: #fff;
-      color: #000;
-    }
-
-    .light-theme .main {
-      background-color: #f9f9f9;
-    }
-
-    .light-theme #token-buttons button {
-      background-color: #ddd;
-      color: #000;
-    }
-
-    .light-theme .notifications {
-      background-color: #ff6600;
-    }
   </style>
 </head>
 <body>
@@ -139,9 +235,9 @@
       <div id="token-buttons"></div>
       <input type="text" id="newToken" placeholder="Новый токен" />
       <button onclick="addCustomToken()">Добавить токен</button>
-      <button onclick="removeCurrentToken()" class="small-btn">Удалить выбранный</button>
-      <button onclick="toggleTheme()" class="small-btn">Сменить тему</button>
-      <button onclick="updateChart()" class="small-btn">Обновить цену</button> <!-- Новая кнопка -->
+      <button onclick="removeCurrentToken()">Удалить выбранный</button>
+      <button onclick="toggleTheme()">Сменить тему</button>
+      <button onclick="updateChart()">Обновить цену</button>
     </div>
     <div class="main">
       <canvas id="chart"></canvas>
@@ -154,187 +250,5 @@
     </div>
   </div>
   <div class="notifications" id="notification"></div>
-
-  <script>
-    const defaultTokens = ['BTC', 'ETH', 'XRP', 'SOL', 'TON', 'LINK', 'TRX'];
-    let customTokens = JSON.parse(localStorage.getItem('customTokens')) || [];
-    let allTokens = [...defaultTokens, ...customTokens];
-    let currentToken = allTokens[0];
-
-    // Восстанавливаем цены и данные графиков из localStorage
-    let tokenPrices = JSON.parse(localStorage.getItem('tokenPrices')) || {
-      BTC: 100000,
-      ETH: 1400,
-      XRP: 1.2,
-      SOL: 100,
-      TON: 0.5,
-      LINK: 25,
-      TRX: 0.1
-    };
-
-    let tokenMinPrices = {
-      BTC: 60000,
-      ETH: 1000,
-      XRP: 0.3,
-      SOL: 20,
-      TON: 0.1,
-      LINK: 5,
-      TRX: 0.01
-    };
-
-    // Загружаем или инициализируем данные графиков
-    let chartData = JSON.parse(localStorage.getItem('chartData')) || {};
-
-    let ctx = document.getElementById('chart').getContext('2d');
-    let chartCanvas = document.getElementById('chart');
-    let width = chartCanvas.width = chartCanvas.offsetWidth;
-    let height = chartCanvas.height = 300;
-
-    function drawChart(data) {
-      ctx.clearRect(0, 0, width, height);
-      ctx.beginPath();
-      let len = data.length;
-      let maxPrice = Math.max(...data);
-      let minPrice = Math.min(...data);
-      data.forEach((val, i) => {
-        let x = (width / (len - 1)) * i;
-        let y = height - ((val - minPrice) / (maxPrice - minPrice || 1)) * height;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.strokeStyle = '#00ff88';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-
-    function updateChart(change = 0) {
-      let price = tokenPrices[currentToken];
-      if (!price || isNaN(price)) {
-        price = tokenPrices[currentToken] = 1.0;
-      }
-      let data = chartData[currentToken] || Array(20).fill(price);
-      let last = data[data.length - 1] || price;
-      let delta = change || (Math.random() * 0.02 * (Math.random() < 0.5 ? -1 : 1));
-      let next = parseFloat((last * (1 + delta)).toFixed(2));
-      let minPrice = tokenMinPrices[currentToken] || 0.01;
-      next = Math.max(next, minPrice);
-      tokenPrices[currentToken] = next;
-      data.push(next);
-      if (data.length > 20) data.shift();
-      chartData[currentToken] = data;
-
-      // Сохраняем обновленные данные в localStorage
-      localStorage.setItem('chartData', JSON.stringify(chartData));
-      localStorage.setItem('tokenPrices', JSON.stringify(tokenPrices));
-
-      drawChart(data);
-
-      if (Math.abs(delta) >= 0.0125) {
-        notify(`${currentToken} изменилась на ${(delta * 100).toFixed(2)}%`);
-      }
-
-      updateTokenInfo();
-    }
-
-    function notify(msg) {
-      let el = document.getElementById('notification');
-      el.textContent = msg;
-      setTimeout(() => { el.textContent = ''; }, 3000);
-    }
-
-    function buyToken() {
-      let amount = parseFloat(document.getElementById('amount').value || 1);
-      if (isNaN(amount) || amount <= 0) return;
-      updateChart(0.01);
-    }
-
-    function sellToken() {
-      let amount = parseFloat(document.getElementById('amount').value || 1);
-      if (isNaN(amount) || amount <= 0) return;
-      updateChart(-0.01);
-    }
-
-    function createButtons() {
-      let container = document.getElementById('token-buttons');
-      container.innerHTML = '';
-      allTokens.forEach(token => {
-        let btn = document.createElement('button');
-        btn.textContent = token;
-        btn.onclick = () => {
-          currentToken = token;
-          if (!tokenPrices[token]) {
-            tokenPrices[token] = 1.0;
-          }
-          if (!chartData[token]) {
-            chartData[token] = Array(20).fill(tokenPrices[token]);
-          }
-          localStorage.setItem('chartData', JSON.stringify(chartData));
-          localStorage.setItem('tokenPrices', JSON.stringify(tokenPrices));
-          drawChart(chartData[token]);
-          updateTokenInfo();
-        };
-        container.appendChild(btn);
-      });
-    }
-
-    function updateTokenInfo() {
-      const price = tokenPrices[currentToken];
-      document.getElementById('token-info').textContent = `${currentToken}: $${price && !isNaN(price) ? price.toFixed(2) : 'Нет данных'}`;
-    }
-
-    function addCustomToken() {
-      let input = document.getElementById('newToken');
-      let token = input.value.toUpperCase();
-      if (token && !allTokens.includes(token)) {
-        customTokens.push(token);
-        allTokens.push(token);
-        localStorage.setItem('customTokens', JSON.stringify(customTokens));
-        tokenPrices[token] = 1.00;
-        localStorage.setItem('tokenPrices', JSON.stringify(tokenPrices));
-        chartData[token] = Array(20).fill(1.00);
-        localStorage.setItem('chartData', JSON.stringify(chartData));
-        createButtons();
-        input.value = '';
-      }
-    }
-
-    function removeCurrentToken() {
-      if (defaultTokens.includes(currentToken)) {
-        notify('Нельзя удалить стандартный токен.');
-        return;
-      }
-      customTokens = customTokens.filter(t => t !== currentToken);
-      allTokens = [...defaultTokens, ...customTokens];
-      delete chartData[currentToken];
-      delete tokenPrices[currentToken];
-      localStorage.setItem('customTokens', JSON.stringify(customTokens));
-      localStorage.setItem('chartData', JSON.stringify(chartData));
-      localStorage.setItem('tokenPrices', JSON.stringify(tokenPrices));
-      currentToken = allTokens[0];
-      createButtons();
-      drawChart(chartData[currentToken]);
-      updateTokenInfo();
-    }
-
-    function toggleTheme() {
-      document.body.classList.toggle('light-theme');
-      localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
-    }
-
-    function loadTheme() {
-      const theme = localStorage.getItem('theme');
-      if (theme === 'light') {
-        document.body.classList.add('light-theme');
-      }
-    }
-
-    setInterval(() => updateChart(), 30000);
-
-    loadTheme();
-    createButtons();
-    if (!chartData[currentToken]) chartData[currentToken] = Array(20).fill(tokenPrices[currentToken] || 1);
-    drawChart(chartData[currentToken]);
-    updateTokenInfo();
-  </script>
 </body>
 </html>
