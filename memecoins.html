@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLUMS — Мемкоин Биржа</title>
+    <style>
+        body {
+            background: #0a0e17;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px 12px 40px 12px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 24px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00ff88;
+        }
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        nav a:hover, nav a.active {
+            background: #23272f;
+        }
+        .title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00ff88;
+        }
+        .btn-create-memecoin {
+            background: #00ff88;
+            color: #0a0e17;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn-create-memecoin:hover {
+            opacity: 0.8;
+        }
+        .main-content {
+            display: flex;
+            gap: 32px;
+        }
+        .memecoin-list {
+            min-width: 260px;
+            max-width: 320px;
+        }
+        .memecoin-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: #161a23;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: background 0.2s, border 0.2s;
+            border: 2px solid transparent;
+        }
+        .memecoin-item.active {
+            background: #23272f;
+            border: 2px solid #00ff88;
+        }
+        .memecoin-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #23272f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #00ff88;
+            font-weight: bold;
+        }
+        .memecoin-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .memecoin-name {
+            font-size: 17px;
+            font-weight: bold;
+        }
+        .memecoin-ticker {
+            color: #b0b8c1;
+            font-size: 14px;
+        }
+        .memecoin-price {
+            color: #00ff88;
+            font-size: 15px;
+            margin-top: 2px;
+        }
+        .memecoin-supply {
+            color: #b0b8c1;
+            font-size: 13px;
+        }
+        .memecoin-details {
+            flex: 1;
+            background: #161a23;
+            border-radius: 16px;
+            padding: 28px 24px 24px 24px;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .memecoin-details-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #00ff88;
+        }
+        .memecoin-details-ticker {
+            color: #b0b8c1;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+        .memecoin-details-price {
+            font-size: 18px;
+            color: #00ff88;
+            margin-bottom: 8px;
+        }
+        .memecoin-details-supply {
+            color: #b0b8c1;
+            font-size: 15px;
+            margin-bottom: 18px;
+        }
+        .memecoin-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.3s;
+        }
+        .btn-buy {
+            background: #00ff88;
+            color: #0a0e17;
+        }
+        .btn-sell {
+            background: #ff4444;
+            color: #fff;
+        }
+        .chart-container {
+            width: 100%;
+            max-width: 600px;
+            background: #23272f;
+            border-radius: 12px;
+            padding: 18px 12px 12px 12px;
+            margin-bottom: 18px;
+        }
+        .chart-title {
+            color: #b0b8c1;
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+        .chart {
+            width: 100%;
+            height: 260px;
+            background: #161a23;
+            border-radius: 8px;
+        }
+        @media (max-width: 480px) {
+            .main-content {
+                flex-direction: column;
+                gap: 18px;
+            }
+            .memecoin-list {
+                max-width: 100%;
+                min-width: 0;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .memecoin-item {
+                min-width: 140px;
+                flex: 1 1 140px;
+            }
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 8px 2px 24px 2px;
+            }
+            .memecoin-details {
+                padding: 14px 6px 10px 6px;
+            }
+            .chart {
+                height: 160px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">BLUMS</div>
+            <nav>
+                <a href="index.html">Биржа</a>
+                <a href="wallet.html">Кошелек</a>
+                <a href="memecoins.html" class="active">МемКоины</a>
+            </nav>
+        </header>
+        <div class="title-row">
+            <div class="title">Мемкоин Биржа</div>
+            <button class="btn-create-memecoin" onclick="window.location.href='create-memecoin.html'">Создать мемкоин</button>
+        </div>
+        <div class="main-content">
+            <div class="memecoin-list" id="memecoinList"></div>
+            <div class="memecoin-details" id="memecoinDetails" style="display:none">
+                <div class="memecoin-details-title" id="detailsName"></div>
+                <div class="memecoin-details-ticker" id="detailsTicker"></div>
+                <div class="memecoin-details-price" id="detailsPrice"></div>
+                <div class="memecoin-details-supply" id="detailsSupply"></div>
+                <div class="memecoin-actions">
+                    <button class="btn btn-buy" id="btnBuy">Купить</button>
+                    <button class="btn btn-sell" id="btnSell">Продать</button>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">График цены</div>
+                    <canvas id="memecoinChart" class="chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Получаем мемкоины и их историю цен из localStorage
+        let memecoins = JSON.parse(localStorage.getItem('memecoins')) || [
+            { name: 'Doge', ticker: 'DOGE', price: 0.01, supply: 1000000 },
+            { name: 'Pepe', ticker: 'PEPE', price: 0.005, supply: 5000000 }
+        ];
+        let priceHistory = JSON.parse(localStorage.getItem('memecoinPriceHistory')) || {};
+        // Получаем кошелек
+        let wallet = JSON.parse(localStorage.getItem('wallet')) || { balance: 0, tokens: {} };
+        let selectedIdx = 0;
+
+        function saveMemecoins() {
+            localStorage.setItem('memecoins', JSON.stringify(memecoins));
+        }
+        function saveWallet() {
+            localStorage.setItem('wallet', JSON.stringify(wallet));
+        }
+        function savePriceHistory() {
+            localStorage.setItem('memecoinPriceHistory', JSON.stringify(priceHistory));
+        }
+
+        function renderMemecoins() {
+            const list = document.getElementById('memecoinList');
+            list.innerHTML = '';
+            if (memecoins.length === 0) {
+                list.innerHTML = '<div style="color:#b0b8c1;text-align:center;">Нет мемкоинов</div>';
+                document.getElementById('memecoinDetails').style.display = 'none';
+                return;
+            }
+            memecoins.forEach((mc, idx) => {
+                const item = document.createElement('div');
+                item.className = 'memecoin-item' + (idx === selectedIdx ? ' active' : '');
+                item.onclick = () => { selectedIdx = idx; renderMemecoins(); };
+                item.innerHTML = `
+                    <div class="memecoin-icon">${mc.ticker[0]}</div>
+                    <div class="memecoin-info">
+                        <div class="memecoin-name">${mc.name}</div>
+                        <div class="memecoin-ticker">${mc.ticker}</div>
+                        <div class="memecoin-price">$${mc.price.toFixed(4)}</div>
+                        <div class="memecoin-supply">${mc.supply} в обращении</div>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+            renderDetails();
+        }
+
+        function renderDetails() {
+            if (memecoins.length === 0) return;
+            const mc = memecoins[selectedIdx];
+            document.getElementById('memecoinDetails').style.display = '';
+            document.getElementById('detailsName').textContent = mc.name;
+            document.getElementById('detailsTicker').textContent = mc.ticker;
+            document.getElementById('detailsPrice').textContent = `Цена: $${mc.price.toFixed(4)}`;
+            document.getElementById('detailsSupply').textContent = `В обращении: ${mc.supply}`;
+            document.getElementById('btnBuy').onclick = () => buyMemecoin(selectedIdx);
+            document.getElementById('btnSell').onclick = () => sellMemecoin(selectedIdx);
+            renderChart(mc.ticker);
+        }
+
+        function buyMemecoin(idx) {
+            const mc = memecoins[idx];
+            const amount = prompt(`Сколько ${mc.ticker} вы хотите купить?`);
+            if (amount && !isNaN(amount) && amount > 0) {
+                if (mc.supply < amount) {
+                    alert('Недостаточно монет в обращении');
+                    return;
+                }
+                wallet.tokens[mc.ticker] = (wallet.tokens[mc.ticker] || 0) + parseFloat(amount);
+                mc.supply -= parseFloat(amount);
+                // Цена растет на 1-5% в зависимости от объема
+                const percent = 1 + Math.min(4, amount / 1000 * 4);
+                mc.price = mc.price * (1 + percent / 100);
+                // Сохраняем историю цены
+                if (!priceHistory[mc.ticker]) priceHistory[mc.ticker] = [];
+                priceHistory[mc.ticker].push({ price: mc.price, ts: Date.now() });
+                if (priceHistory[mc.ticker].length > 100) priceHistory[mc.ticker] = priceHistory[mc.ticker].slice(-100);
+                saveWallet();
+                saveMemecoins();
+                savePriceHistory();
+                renderMemecoins();
+                alert(`Успешно куплено ${amount} ${mc.ticker}`);
+            }
+        }
+        function sellMemecoin(idx) {
+            const mc = memecoins[idx];
+            const amount = prompt(`Сколько ${mc.ticker} вы хотите продать?`);
+            if (amount && !isNaN(amount) && amount > 0) {
+                if ((wallet.tokens[mc.ticker] || 0) < amount) {
+                    alert('Недостаточно токенов');
+                    return;
+                }
+                wallet.tokens[mc.ticker] -= parseFloat(amount);
+                mc.supply += parseFloat(amount);
+                // Цена падает на 1-5% в зависимости от объема
+                const percent = 1 + Math.min(4, amount / 1000 * 4);
+                mc.price = mc.price * (1 - percent / 100);
+                // Сохраняем историю цены
+                if (!priceHistory[mc.ticker]) priceHistory[mc.ticker] = [];
+                priceHistory[mc.ticker].push({ price: mc.price, ts: Date.now() });
+                if (priceHistory[mc.ticker].length > 100) priceHistory[mc.ticker] = priceHistory[mc.ticker].slice(-100);
+                saveWallet();
+                saveMemecoins();
+                savePriceHistory();
+                renderMemecoins();
+                alert(`Успешно продано ${amount} ${mc.ticker}`);
+            }
+        }
+
+        function renderChart(ticker) {
+            const canvas = document.getElementById('memecoinChart');
+            const ctx = canvas.getContext('2d');
+            // Размеры
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            // История
+            let data = priceHistory[ticker] ? priceHistory[ticker].map(p => p.price) : [];
+            if (data.length === 0) data = [memecoins[selectedIdx].price];
+            // min/max
+            const min = Math.min(...data);
+            const max = Math.max(...data);
+            const range = max - min || 1;
+            // Очистка
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Сетка
+            ctx.strokeStyle = '#2a2f3b';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = (canvas.height / 4) * i;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            // График
+            ctx.strokeStyle = '#00ff88';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            data.forEach((price, i) => {
+                const x = (i / (data.length - 1)) * canvas.width;
+                const y = canvas.height - ((price - min) / range) * canvas.height;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+            // Текущая цена
+            ctx.fillStyle = '#00ff88';
+            ctx.font = '15px Arial';
+            ctx.fillText(`$${data[data.length-1].toFixed(4)}`, 10, 22);
+        }
+
+        // Функция для случайного изменения цены и обновления графика мемкоина
+        function randomMemecoinPriceUpdate() {
+            if (memecoins.length === 0) return;
+            const mc = memecoins[selectedIdx];
+            let price = mc.price;
+            // Случайное изменение: вверх или вниз на 0.5-2%
+            const direction = Math.random() > 0.5 ? 1 : -1;
+            const percent = 0.5 + Math.random() * 1.5;
+            price = price * (1 + direction * percent / 100);
+            mc.price = price;
+            if (!priceHistory[mc.ticker]) priceHistory[mc.ticker] = [];
+            priceHistory[mc.ticker].push({ price, ts: Date.now() });
+            if (priceHistory[mc.ticker].length > 100) priceHistory[mc.ticker] = priceHistory[mc.ticker].slice(-100);
+            localStorage.setItem('memecoins', JSON.stringify(memecoins));
+            localStorage.setItem('memecoinPriceHistory', JSON.stringify(priceHistory));
+            renderMemecoins();
+        }
+
+        renderMemecoins();
+        setInterval(randomMemecoinPriceUpdate, 30000);
+    </script>
+</body>
+</html> 
