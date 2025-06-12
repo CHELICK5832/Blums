@@ -505,7 +505,7 @@
                 const div = document.createElement('div');
                 div.className = 'token-icon';
                 div.textContent = tokenIcons[symbol] || symbol[0];
-                div.title = `${symbol}: ${wallet.tokens[symbol]} (${(wallet.tokens[symbol]*tokenPrices[symbol]).toFixed(2)}$)`;
+                div.title = `${symbol}: ${wallet.tokens[symbol]} (${isNaN(wallet.tokens[symbol]*tokenPrices[symbol]) ? '0.00' : (wallet.tokens[symbol]*tokenPrices[symbol]).toFixed(2)}$)`;
                 portfolio.appendChild(div);
                 shown++;
             }
@@ -540,7 +540,7 @@
                 table += `<tr>
                     <td style='padding:4px 0;'><span class='token-icon' style='width:22px;height:22px;font-size:13px;vertical-align:middle;margin-right:6px;'>${tokenIcons[symbol] || symbol[0]}</span> <b>${symbol}</b></td>
                     <td style='padding:4px 0;'>${wallet.tokens[symbol]}</td>
-                    <td style='padding:4px 0;'>$${value.toFixed(2)}</td>
+                    <td style='padding:4px 0;'>$${isNaN(value) ? '0.00' : value.toFixed(2)}</td>
                 </tr>`;
             }
         }
@@ -576,7 +576,7 @@
                                 <div class="mobile-token-amount">${wallet.tokens[symbol]}</div>
                             </div>
                         </div>
-                        <div class="mobile-token-value">$${(wallet.tokens[symbol]*tokenPrices[symbol]).toFixed(2)}</div>
+                        <div class="mobile-token-value">$${isNaN(wallet.tokens[symbol]*tokenPrices[symbol]) ? '0.00' : (wallet.tokens[symbol]*tokenPrices[symbol]).toFixed(2)}</div>
                     `;
                     mobileList.appendChild(row);
                 }

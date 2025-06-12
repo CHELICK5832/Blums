@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BLUMS - Криптобиржа</title>
     <style>
+        /* === Десктопные стили === */
         * {
             margin: 0;
             padding: 0;
@@ -142,110 +143,375 @@
             color: #00ff88;
         }
 
-        /* Медиа-запросы для адаптивности */
+        /* === Мобильные стили === */
         @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            header {
-                flex-direction: column;
-                align-items: stretch;
-                text-align: center;
-            }
-            nav {
-                justify-content: center;
-            }
-            .main-content {
-                flex-direction: column;
-            }
-            .tokens-list {
-                max-width: 100%;
-            }
-            .chart-container {
-                height: 400px;
-            }
-            .token-item {
-                padding: 15px;
-            }
-            .token-info {
-                gap: 10px;
-            }
-            .token-symbol {
-                font-size: 18px;
-            }
-            .btn {
-                padding: 6px 12px;
-                font-size: 14px;
-            }
+            /* Скрываем десктопные блоки */
+            .container, header, .main-content { display: none !important; }
+            /* Показываем мобильные блоки */
+            .mobile-token-list, .mobile-exchange, .mobile-nav, #mobile-modal-root { display: block !important; }
+            body { padding-bottom: 70px !important; }
+            /* Мобильная навигация */
             .mobile-nav {
-                display: block;
+                display: flex;
+                position: fixed;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: #16181e;
+                border-top: 1px solid #23242a;
+                z-index: 3000;
+                height: 64px;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 -2px 12px #0003;
             }
-            body {
-                padding-bottom: 60px;
+            .mobile-nav-items {
+                display: flex;
+                width: 100%;
+                justify-content: space-around;
+                align-items: center;
             }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 5px;
+            .mobile-nav-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-decoration: none;
+                color: #888;
+                font-size: 13px;
+                gap: 3px;
+                flex: 1;
+                padding: 0 2px;
+                transition: color 0.2s;
             }
-            .chart-container {
-                height: 300px;
-                padding: 10px;
+            .mobile-nav-item.active {
+                color: #00ff88;
             }
-            .token-details {
-                padding: 10px;
+            .mobile-nav-item i {
+                font-size: 22px;
             }
-            .token-item {
-                padding: 10px;
+            /* Мобильный список токенов */
+            .mobile-token-list {
+                background: #0a0e17;
+                min-height: 100vh;
+                padding-bottom: 80px;
             }
-            .token-symbol {
+            .mobile-token-list-header {
+                font-size: 20px;
+                font-weight: 600;
+                color: #fff;
+                padding: 18px 16px 8px 16px;
+            }
+            .mobile-token-list-items {
+                padding: 0 8px 0 8px;
+            }
+            .mobile-token-list .token-item {
+                background: #16181e;
+                border-radius: 14px;
+                margin-bottom: 10px;
+                padding: 16px 14px;
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+            .mobile-token-list .token-item:hover {
+                background: #23242a;
+            }
+            .mobile-token-list .token-symbol {
+                font-size: 17px;
+                font-weight: 600;
+                color: #fff;
+            }
+            .mobile-token-list .token-price {
+                color: #00ff88;
+                margin-left: 12px;
+                font-size: 15px;
+            }
+            /* Мобильная биржа */
+            .mobile-exchange {
+                background: #0a0e17;
+                min-height: 100vh;
+                padding-bottom: 80px;
+            }
+            .mobile-topbar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 16px 12px 8px 12px;
+                background: #16181e;
+                border-bottom: 1px solid #23242a;
+            }
+            .mobile-back {
+                background: none;
+                border: none;
+                color: #fff;
+                font-size: 22px;
+                padding: 0 8px 0 0;
+                cursor: pointer;
+            }
+            .mobile-title {
+                font-size: 18px;
+                font-weight: 600;
+                color: #fff;
+            }
+            .mobile-bot {
+                color: #888;
+                font-size: 14px;
+                font-weight: 400;
+            }
+            .mobile-topbar-icons {
+                display: flex;
+                gap: 8px;
+            }
+            .mobile-topbar-btn {
+                background: none;
+                border: none;
+                color: #fff;
+                font-size: 20px;
+                cursor: pointer;
+            }
+            .mobile-token-card {
+                background: #16181e;
+                border-radius: 18px;
+                margin: 16px 12px 0 12px;
+                padding: 16px 12px;
+                box-shadow: 0 2px 8px 0 #0002;
+            }
+            .mobile-token-info {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            .mobile-token-avatar {
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                border: 2px solid #23242a;
+            }
+            .mobile-token-name {
+                font-size: 18px;
+                font-weight: 600;
+                color: #fff;
+            }
+            .mobile-token-sub {
+                font-size: 13px;
+                color: #888;
+            }
+            .mobile-share {
+                margin-left: auto;
+                background: #23242a;
+                border: none;
+                border-radius: 8px;
+                color: #fff;
                 font-size: 16px;
+                padding: 8px 10px;
+                cursor: pointer;
             }
-            .token-price {
+            .mobile-token-supply {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-top: 12px;
+            }
+            .mobile-token-percent {
+                color: #00ff88;
+                font-weight: 600;
+                font-size: 15px;
+            }
+            .mobile-token-supply-numbers {
+                color: #fff;
                 font-size: 14px;
             }
-            .btn {
-                padding: 5px 10px;
+            .mobile-info {
+                color: #888;
+                font-size: 15px;
+                margin-left: 4px;
+            }
+            .mobile-token-stats {
+                margin: 18px 12px 0 12px;
+                background: #16181e;
+                border-radius: 14px;
+                padding: 12px 10px 6px 10px;
+            }
+            .mobile-token-stats-row {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 6px;
+            }
+            .mobile-token-stat-label {
+                color: #888;
                 font-size: 12px;
             }
+            .mobile-token-stat-value {
+                color: #fff;
+                font-size: 15px;
+                font-weight: 600;
+            }
+            .mobile-token-switches {
+                display: flex;
+                justify-content: space-between;
+                margin: 14px 12px 0 12px;
+                gap: 6px;
+            }
+            .mobile-switch-btn {
+                background: #23242a;
+                color: #fff;
+                border: none;
+                border-radius: 8px;
+                padding: 6px 10px;
+                font-size: 13px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+            .mobile-switch-btn.active {
+                background: #00ff88;
+                color: #0a0e17;
+            }
+            .mobile-token-chart {
+                background: #23242a;
+                border-radius: 14px;
+                margin: 14px 12px 0 12px;
+                padding: 12px 0 0 0;
+                position: relative;
+                height: 130px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-end;
+            }
+            .mobile-token-chart-label {
+                position: absolute;
+                top: 10px;
+                right: 18px;
+                background: #16181e;
+                color: #00ff88;
+                font-size: 14px;
+                font-weight: 600;
+                border-radius: 6px;
+                padding: 2px 8px;
+            }
+            .mobile-token-reactions {
+                display: flex;
+                justify-content: space-between;
+                margin: 14px 12px 0 12px;
+                gap: 8px;
+            }
+            .mobile-reaction {
+                background: #23242a;
+                color: #fff;
+                border-radius: 8px;
+                padding: 7px 18px;
+                font-size: 15px;
+                display: flex;
+                align-items: center;
+                gap: 7px;
+                font-weight: 500;
+            }
+            .mobile-token-actions {
+                display: flex;
+                justify-content: space-between;
+                margin: 18px 12px 0 12px;
+                gap: 12px;
+            }
+            .mobile-buy-btn {
+                flex: 1;
+                background: #00ff88;
+                color: #0a0e17;
+                border: none;
+                border-radius: 12px;
+                font-size: 18px;
+                font-weight: 700;
+                padding: 14px 0;
+                margin-right: 4px;
+                cursor: pointer;
+                transition: opacity 0.2s;
+            }
+            .mobile-sell-btn {
+                flex: 1;
+                background: #ff00b8;
+                color: #fff;
+                border: none;
+                border-radius: 12px;
+                font-size: 18px;
+                font-weight: 700;
+                padding: 14px 0;
+                margin-left: 4px;
+                cursor: pointer;
+                transition: opacity 0.2s;
+            }
+            .mobile-buy-btn:active, .mobile-sell-btn:active {
+                opacity: 0.7;
+                transform: scale(0.97);
+                transition: transform 0.1s, opacity 0.1s;
+            }
+            /* Модальное окно */
+            .mobile-modal-bg {
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.6);
+                z-index: 4000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .mobile-modal {
+                background: #16181e;
+                border-radius: 16px;
+                padding: 28px 18px 18px 18px;
+                min-width: 260px;
+                max-width: 90vw;
+                box-shadow: 0 4px 24px #0005;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .mobile-modal-title {
+                color: #fff;
+                font-size: 18px;
+                font-weight: 600;
+                margin-bottom: 12px;
+            }
+            .mobile-modal-input {
+                width: 100%;
+                padding: 10px;
+                border-radius: 8px;
+                border: none;
+                background: #23242a;
+                color: #fff;
+                font-size: 16px;
+                margin-bottom: 16px;
+                outline: none;
+            }
+            .mobile-modal-btns {
+                display: flex;
+                gap: 10px;
+                width: 100%;
+            }
+            .mobile-modal-btn {
+                flex: 1;
+                padding: 10px 0;
+                border-radius: 8px;
+                border: none;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: opacity 0.2s;
+            }
+            .mobile-modal-btn.confirm {
+                background: #00ff88;
+                color: #0a0e17;
+            }
+            .mobile-modal-btn.cancel {
+                background: #23242a;
+                color: #fff;
+            }
         }
 
-        /* Мобильная навигация */
-        .mobile-nav {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: #1a1f2b;
-            padding: 10px;
-            border-top: 1px solid #2a2f3b;
-            z-index: 1000;
-        }
-
-        .mobile-nav-items {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-        }
-
-        .mobile-nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: #ffffff;
-            font-size: 12px;
-            gap: 4px;
-        }
-
-        .mobile-nav-item.active {
-            color: #00ff88;
-        }
-
-        .mobile-nav-item i {
-            font-size: 20px;
+        /* === Скрытие мобильных блоков на десктопе === */
+        @media (min-width: 769px) {
+            .mobile-token-list, .mobile-exchange, .mobile-nav, #mobile-modal-root { display: none !important; }
+            .container, header, .main-content { display: block; }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -343,6 +609,138 @@
         </div>
     </div>
 
+    <!-- Мобильный список токенов -->
+    <div class="mobile-token-list" style="display: block;">
+        <div class="mobile-token-list-header">Токены</div>
+        <div class="mobile-token-list-items">
+            <div class="token-item" data-symbol="BTC">
+                <div class="token-info">
+                    <span class="token-symbol">BTC</span>
+                    <span class="token-price">$45,000</span>
+                </div>
+            </div>
+            <div class="token-item" data-symbol="ETH">
+                <div class="token-info">
+                    <span class="token-symbol">ETH</span>
+                    <span class="token-price">$3,200</span>
+                </div>
+            </div>
+            <div class="token-item" data-symbol="SOL">
+                <div class="token-info">
+                    <span class="token-symbol">SOL</span>
+                    <span class="token-price">$120</span>
+                </div>
+            </div>
+            <div class="token-item" data-symbol="TON">
+                <div class="token-info">
+                    <span class="token-symbol">TON</span>
+                    <span class="token-price">$2.5</span>
+                </div>
+            </div>
+            <div class="token-item" data-symbol="TRON">
+                <div class="token-info">
+                    <span class="token-symbol">TRON</span>
+                    <span class="token-price">$0.12</span>
+                </div>
+            </div>
+            <div class="token-item" data-symbol="TRX">
+                <div class="token-info">
+                    <span class="token-symbol">TRX</span>
+                    <span class="token-price">$0.08</span>
+                </div>
+            </div>
+            <div class="token-item" data-symbol="FPIBANK">
+                <div class="token-info">
+                    <span class="token-symbol">FPIBANK</span>
+                    <span class="token-price">$0.05</span>
+                </div>
+            </div>
+            <div class="token-item" data-symbol="CHELDEVCOIN">
+                <div class="token-info">
+                    <span class="token-symbol">CHELDEVCOIN</span>
+                    <span class="token-price">$0.03</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /Мобильный список токенов -->
+    <!-- Мобильная биржа -->
+    <div class="mobile-exchange" style="display: none;">
+        <div class="mobile-topbar">
+            <button class="mobile-back"><i class="fas fa-arrow-left"></i></button>
+            <div class="mobile-title">Blum <span class="mobile-bot">bot</span></div>
+            <div class="mobile-topbar-icons">
+                <button class="mobile-topbar-btn"><i class="fas fa-ellipsis-h"></i></button>
+            </div>
+        </div>
+        <div class="mobile-token-card">
+            <div class="mobile-token-info">
+                <img src="https://i.imgur.com/8Km9tLL.png" alt="$WAPE" class="mobile-token-avatar" id="mobile-token-avatar">
+                <div>
+                    <div class="mobile-token-name" id="mobile-token-name">$WAPE</div>
+                    <div class="mobile-token-sub" id="mobile-token-sub">25 Nov • STON.fi</div>
+                </div>
+                <button class="mobile-share"><i class="fas fa-share"></i></button>
+            </div>
+            <div class="mobile-token-supply">
+                <span class="mobile-token-percent" id="mobile-token-percent">15%</span>
+                <span class="mobile-token-supply-numbers" id="mobile-token-supply">1374/9165 TON</span>
+                <i class="fas fa-info-circle mobile-info"></i>
+            </div>
+        </div>
+        <!-- Блок статистики -->
+        <div class="mobile-token-stats">
+            <div class="mobile-token-stats-row">
+                <div class="mobile-token-stat">
+                    <div class="mobile-token-stat-label">Market cap</div>
+                    <div class="mobile-token-stat-value" id="mobile-marketcap">$7.5K</div>
+                </div>
+                <div class="mobile-token-stat">
+                    <div class="mobile-token-stat-label">Holders</div>
+                    <div class="mobile-token-stat-value" id="mobile-holders">6845</div>
+                </div>
+            </div>
+            <div class="mobile-token-stats-row">
+                <div class="mobile-token-stat">
+                    <div class="mobile-token-stat-label">Txns</div>
+                    <div class="mobile-token-stat-value" id="mobile-txns">1.5B</div>
+                </div>
+                <div class="mobile-token-stat">
+                    <div class="mobile-token-stat-label">Volume</div>
+                    <div class="mobile-token-stat-value" id="mobile-volume">$385,069,594</div>
+                </div>
+            </div>
+        </div>
+        <!-- Кнопки переключения -->
+        <div class="mobile-token-switches">
+            <button class="mobile-switch-btn active">MCap</button>
+            <button class="mobile-switch-btn">Price</button>
+            <button class="mobile-switch-btn">1m</button>
+            <button class="mobile-switch-btn">5m</button>
+            <button class="mobile-switch-btn">15m</button>
+            <button class="mobile-switch-btn">1h</button>
+        </div>
+        <!-- График -->
+        <div class="mobile-token-chart">
+            <canvas id="mobilePriceChart" width="340" height="120"></canvas>
+            <div class="mobile-token-chart-label" id="mobile-chart-label">$0.44</div>
+        </div>
+        <!-- Реакции -->
+        <div class="mobile-token-reactions">
+            <div class="mobile-reaction"><span>🚀</span> <span>8.1K</span></div>
+            <div class="mobile-reaction"><span>🔥</span> <span>1.2K</span></div>
+            <div class="mobile-reaction"><span>💔</span> <span>3.2K</span></div>
+        </div>
+        <!-- Кнопки Buy/Sell -->
+        <div class="mobile-token-actions">
+            <button class="mobile-buy-btn">Buy</button>
+            <button class="mobile-sell-btn">Sell</button>
+        </div>
+    </div>
+    <!-- /Мобильная биржа -->
+
+    <div id="mobile-modal-root"></div>
+
     <script>
         // Инициализация данных в localStorage
         if (!localStorage.getItem('wallet')) {
@@ -371,6 +769,13 @@
         // Сохраняем начальные цены, если их еще нет в localStorage
         if (!localStorage.getItem('tokenPrices')) {
             localStorage.setItem('tokenPrices', JSON.stringify(tokenPrices));
+        } else {
+            // Гарантируем, что мемтокены есть в tokenPrices
+            let prices = JSON.parse(localStorage.getItem('tokenPrices'));
+            if (!prices['FPIBANK']) prices['FPIBANK'] = 0.05;
+            if (!prices['CHELDEVCOIN']) prices['CHELDEVCOIN'] = 0.03;
+            localStorage.setItem('tokenPrices', JSON.stringify(prices));
+            tokenPrices = prices;
         }
 
         // Сохраняем историю цен для каждого токена
@@ -644,6 +1049,185 @@
 
         // Удаляем старый обработчик resize
         window.onresize = null;
+
+        // --- Мобильная логика ---
+        function showMobileTokenCard(symbol) {
+            // Здесь можно добавить реальные данные для каждого токена
+            var tokenData = {
+                'BTC': {
+                    avatar: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png',
+                    name: 'BTC',
+                    sub: 'Bitcoin • Spot',
+                    percent: '+2.1%',
+                    supply: '21000/21000000 BTC'
+                },
+                'ETH': {
+                    avatar: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
+                    name: 'ETH',
+                    sub: 'Ethereum • Spot',
+                    percent: '+1.3%',
+                    supply: '120M/120M ETH'
+                },
+                'SOL': {
+                    avatar: 'https://cryptologos.cc/logos/solana-sol-logo.png',
+                    name: 'SOL',
+                    sub: 'Solana • Spot',
+                    percent: '+0.8%',
+                    supply: '430M/500M SOL'
+                },
+                'TON': {
+                    avatar: 'https://cryptologos.cc/logos/toncoin-ton-logo.png',
+                    name: 'TON',
+                    sub: 'TON • Spot',
+                    percent: '+3.2%',
+                    supply: '1374/9165 TON'
+                },
+                'TRON': {
+                    avatar: 'https://cryptologos.cc/logos/tron-trx-logo.png',
+                    name: 'TRON',
+                    sub: 'TRON • Spot',
+                    percent: '+0.5%',
+                    supply: '92B/100B TRON'
+                },
+                'TRX': {
+                    avatar: 'https://cryptologos.cc/logos/tron-trx-logo.png',
+                    name: 'TRX',
+                    sub: 'TRON • Spot',
+                    percent: '+0.5%',
+                    supply: '92B/100B TRX'
+                },
+                'FPIBANK': {
+                    avatar: 'https://i.imgur.com/8Km9tLL.png',
+                    name: 'FPIBANK',
+                    sub: 'Memecoin • Spot',
+                    percent: '+10%',
+                    supply: '1M/10M FPIBANK'
+                },
+                'CHELDEVCOIN': {
+                    avatar: 'https://i.imgur.com/8Km9tLL.png',
+                    name: 'CHELDEVCOIN',
+                    sub: 'Memecoin • Spot',
+                    percent: '+7%',
+                    supply: '500K/1M CHELDEVCOIN'
+                }
+            };
+            var data = tokenData[symbol] || tokenData['BTC'];
+            document.getElementById('mobile-token-avatar').src = data.avatar;
+            document.getElementById('mobile-token-name').textContent = data.name;
+            document.getElementById('mobile-token-sub').textContent = data.sub;
+            document.getElementById('mobile-token-percent').textContent = data.percent;
+            document.getElementById('mobile-token-supply').textContent = data.supply;
+            document.querySelector('.mobile-exchange').style.display = 'block';
+            document.querySelector('.mobile-token-list').style.display = 'none';
+        }
+
+        // Для мобильных: обработка клика по токену
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.innerWidth <= 768) {
+                // По умолчанию показываем только список токенов
+                document.querySelector('.mobile-token-list').style.display = 'block';
+                document.querySelector('.mobile-exchange').style.display = 'none';
+                // Навешиваем обработчик только на мобильные токены
+                document.querySelectorAll('.mobile-token-list .token-item').forEach(item => {
+                    item.onclick = function() {
+                        var symbol = this.getAttribute('data-symbol');
+                        console.log('Токен выбран:', symbol);
+                        showMobileTokenCard(symbol);
+                        document.querySelector('.mobile-token-list').style.setProperty('display', 'none', 'important');
+                        document.querySelector('.mobile-exchange').style.setProperty('display', 'block', 'important');
+                        setTimeout(animateMobileChart, 100);
+                    };
+                });
+                // Кнопка назад
+                document.querySelector('.mobile-back').onclick = function() {
+                    document.querySelector('.mobile-exchange').style.setProperty('display', 'none', 'important');
+                    document.querySelector('.mobile-token-list').style.setProperty('display', 'block', 'important');
+                };
+            }
+        });
+
+        // --- Мобильный график (заглушка) ---
+        function drawMobileChart() {
+            var canvas = document.getElementById('mobilePriceChart');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Рисуем простую линию (пример)
+            ctx.strokeStyle = '#00ff88';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(10, canvas.height - 30);
+            ctx.lineTo(canvas.width / 2, 30);
+            ctx.lineTo(canvas.width - 10, canvas.height - 50);
+            ctx.stroke();
+        }
+
+        // Рисуем график при открытии биржи
+        if (window.innerWidth <= 768) {
+            document.querySelectorAll('.mobile-token-list .token-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    setTimeout(drawMobileChart, 100); // небольшой таймаут для отрисовки
+                });
+            });
+        }
+
+        // --- Анимация графика ---
+        function animateMobileChart() {
+            var canvas = document.getElementById('mobilePriceChart');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Генерируем точки
+            var points = [
+                {x: 10, y: canvas.height - 30},
+                {x: canvas.width / 2, y: 30},
+                {x: canvas.width - 10, y: canvas.height - 50}
+            ];
+            var steps = 60;
+            var current = 0;
+            function drawStep() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = '#00ff88';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                // Линейная интерполяция между точками
+                var t = current / steps;
+                var x1 = points[0].x + (points[1].x - points[0].x) * t;
+                var y1 = points[0].y + (points[1].y - points[0].y) * t;
+                ctx.lineTo(x1, y1);
+                if (t > 0.5) {
+                    var t2 = (t - 0.5) * 2;
+                    var x2 = points[1].x + (points[2].x - points[1].x) * t2;
+                    var y2 = points[1].y + (points[2].y - points[1].y) * t2;
+                    ctx.lineTo(x2, y2);
+                }
+                ctx.stroke();
+                if (current < steps) {
+                    current++;
+                    requestAnimationFrame(drawStep);
+                }
+            }
+            drawStep();
+        }
+
+        // --- Модальное окно для покупки/продажи ---
+        function showMobileModal(type, symbol) {
+            var root = document.getElementById('mobile-modal-root');
+            var title = type === 'buy' ? 'Покупка ' + symbol : 'Продажа ' + symbol;
+            root.innerHTML = `
+                <div class='mobile-modal-bg'>
+                    <div class='mobile-modal'>
+                        <div class='mobile-modal-title'>${title}</div>
+                        <input class='mobile-modal-input' id='mobile-modal-amount' type='number' min='0' placeholder='Количество'>
+                        <div class='mobile-modal-btns'>
+                            <button class='mobile-modal-btn confirm'>OK</button>
+                            <button class='mobile-modal-btn cancel'>Отмена</button>
+                        </div>
+                    </div>
+                </div>
+            `
+        }
     </script>
 </body>
-</html> 
+</html>
