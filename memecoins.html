@@ -257,6 +257,22 @@
             </div>
         </div>
     </div>
+    <div class="mobile-nav">
+        <div class="mobile-nav-items">
+            <a href="index.html" class="mobile-nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Биржа</span>
+            </a>
+            <a href="wallet.html" class="mobile-nav-item">
+                <i class="fas fa-wallet"></i>
+                <span>Кошелек</span>
+            </a>
+            <a href="memecoins.html" class="mobile-nav-item active">
+                <i class="fas fa-coins"></i>
+                <span>Мемкоины</span>
+            </a>
+        </div>
+    </div>
     <script>
         // Получаем мемкоины и их историю цен из localStorage
         let memecoins = JSON.parse(localStorage.getItem('memecoins')) || [
