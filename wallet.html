@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet | CryptoExchange</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">CryptoExchange</div>
+            <ul>
+                <li><a href="index.html">Market</a></li>
+                <li><a href="wallet.html" class="active">Wallet</a></li>
+                <li>
+                    <button class="theme-toggle" id="themeToggle">🌙</button>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="wallet-section">
+            <h2>Your Wallet</h2>
+            <div id="totalBalance" class="total-balance"></div>
+            <div id="walletBalances" class="wallet-balances">
+                <!-- Balances will be rendered here -->
+            </div>
+        </section>
+    </main>
+    <script>
+    // Theme logic (same as on main page)
+    const themeToggle = document.getElementById('themeToggle');
+    const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    function initializeTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.body.setAttribute('data-theme', savedTheme);
+            themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+        } else if (prefersDarkScheme.matches) {
+            document.body.setAttribute('data-theme', 'dark');
+            themeToggle.textContent = '☀️';
+        }
+    }
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = document.body.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', newTheme);
+        themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        localStorage.setItem('theme', newTheme);
+    });
+    initializeTheme();
+
+    // Load tokens and balances from localStorage
+    function loadWallet() {
+        const tokens = JSON.parse(localStorage.getItem('tokens') || '[]');
+        const balances = JSON.parse(localStorage.getItem('walletBalances') || '{}');
+        const walletDiv = document.getElementById('walletBalances');
+        const totalDiv = document.getElementById('totalBalance');
+        walletDiv.innerHTML = '';
+        let total = 0;
+        if (tokens.length === 0) {
+            walletDiv.innerHTML = '<p>No tokens in your wallet yet.</p>';
+            totalDiv.textContent = '';
+            return;
+        }
+        tokens.forEach(token => {
+            const balance = balances[token.symbol] || 0;
+            const value = balance * token.price;
+            total += value;
+            const card = document.createElement('div');
+            card.className = 'token-card';
+            card.innerHTML = `
+                <h3>${token.name} (${token.symbol})</h3>
+                <p>Balance: ${balance.toLocaleString(undefined, {maximumFractionDigits: 6})}</p>
+                <p>Value: $${value.toLocaleString(undefined, {maximumFractionDigits: 2})}</p>
+            `;
+            walletDiv.appendChild(card);
+        });
+        totalDiv.textContent = `Total Balance: $${total.toLocaleString(undefined, {maximumFractionDigits: 2})}`;
+    }
+    document.addEventListener('DOMContentLoaded', loadWallet);
+    </script>
+</body>
+</html> 

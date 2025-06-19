@@ -200,12 +200,14 @@ function updateTokensList() {
     tokensList.innerHTML = '';
     
     tokens.forEach(token => {
+        const marketCap = token.price * token.supply;
         const tokenCard = document.createElement('div');
         tokenCard.className = `token-card ${token.id === activeTokenId ? 'active' : ''}`;
         tokenCard.innerHTML = `
             <h3>${token.name} (${token.symbol})</h3>
             <p>Supply: ${token.supply.toLocaleString()}</p>
             <p>Current Price: $${token.price.toFixed(6)}</p>
+            <p>Market Cap: $${marketCap.toLocaleString(undefined, {maximumFractionDigits: 2})}</p>
             <p class="last-update">Last update: ${new Date().toLocaleTimeString()}</p>
         `;
         
@@ -220,6 +222,16 @@ const buyButton = document.getElementById('buyButton');
 const sellButton = document.getElementById('sellButton');
 const tradeTotal = document.getElementById('tradeTotal');
 const priceImpact = document.getElementById('priceImpact');
+
+// Load wallet balances from localStorage
+function loadWalletBalances() {
+    return JSON.parse(localStorage.getItem('walletBalances') || '{}');
+}
+
+// Save wallet balances to localStorage
+function saveWalletBalances(balances) {
+    localStorage.setItem('walletBalances', JSON.stringify(balances));
+}
 
 // Calculate price impact based on trade amount
 function calculatePriceImpact(amount, token) {
@@ -256,6 +268,23 @@ function handleTrade(isBuy) {
         alert('Please select a token first');
         return;
     }
+
+    // Load balances
+    const balances = loadWalletBalances();
+    const symbol = token.symbol;
+    const currentBalance = balances[symbol] || 0;
+
+    // For sell, check if enough balance
+    if (!isBuy && amount > currentBalance) {
+        alert('Not enough balance to sell');
+        return;
+    }
+
+    // Update balance
+    balances[symbol] = isBuy
+        ? currentBalance + amount
+        : currentBalance - amount;
+    saveWalletBalances(balances);
 
     // Calculate impact from trade
     const impact = calculatePriceImpact(amount, token);
